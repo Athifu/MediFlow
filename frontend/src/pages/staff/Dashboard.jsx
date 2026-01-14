@@ -1,125 +1,55 @@
-import SmartRanker from "../../components/logic/SmartRanker";
-import ComplianceAuditor from "../../components/logic/ComplianceAuditor";
-import BedStatusWidget from "../../components/logic/BedStatusWidget";
-import DoctorPrescription from "../../components/logic/DoctorPrescription";
+import { useState, useEffect } from "react";
+import { Button } from "../../components/ui/button";
 import { Scan } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { Button } from "../../components/ui/button";
-import { useEffect, useState } from "react";
-import { api } from "../../lib/api";
+import AdminView from "../../components/staff/AdminView";
+import DoctorView from "../../components/staff/DoctorView";
+import NurseView from "../../components/staff/NurseView";
+import PharmacyView from "../../components/staff/PharmacyView";
 
 export default function StaffDashboard() {
-    const [stats, setStats] = useState({ patients: 0 });
-    const [role, setRole] = useState("doctor");
+    const [userRole, setUserRole] = useState("doctor");
     const [userName, setUserName] = useState("Staff");
     const navigate = useNavigate();
 
     useEffect(() => {
-        api.get("/patients").then(data => setStats({ patients: data.length })).catch(console.error);
         const r = localStorage.getItem("user_role");
         const n = localStorage.getItem("user_name");
-        if (r) setRole(r);
+        if (r) setUserRole(r);
         if (n) setUserName(n);
     }, []);
 
-    const scanPatientTag = async () => {
-        if ("NDEFReader" in window) {
-            try {
-                const ndef = new window.NDEFReader();
-                await ndef.scan();
-                // Simple Alert for demo or Toast
-                const confirmScan = window.confirm("Scanning... Tap Patient Wristband now.");
-                if (confirmScan) {
-                    // In real WebNFC, this is event driven. 
-                    // For UI simplicity in this 'onClick' flow:
-                    ndef.onreading = event => {
-                        const serial = event.serialNumber;
-                        navigate(`/staff/patient/${serial || '1'}`);
-                    };
-                }
-            } catch (e) {
-                console.error(e);
-                // Fallback for demo
-                const mockSim = window.prompt("Simulate Scan (Enter Patient ID):", "1");
-                if (mockSim) navigate(`/staff/patient/${mockSim}`);
-            }
-        } else {
-            // Fallback for PC testing
-            const mockSim = window.prompt("Simulate Scan (Enter Patient ID):", "1");
-            if (mockSim) navigate(`/staff/patient/${mockSim}`);
-        }
+    const scanPatientTag = () => {
+        // Mock Scan for Demo
+        const mockSim = window.prompt("Simulate NFC Scan (Enter Patient ID):", "PATIENT_001");
+        if (mockSim) navigate(`/staff/patient/${mockSim}`);
+    };
+
+    const renderDashboard = () => {
+        // Handle variations in role naming if any
+        const role = userRole.toLowerCase();
+        if (role === 'admin') return <AdminView />;
+        if (role === 'doctor') return <DoctorView />;
+        if (role === 'nurse') return <NurseView />;
+        if (role === 'pharmacy' || role === 'pharmacist') return <PharmacyView />;
+        return <div className="p-10 text-center text-slate-500">Unknown Role: {userRole}</div>;
     };
 
     return (
         <div className="space-y-6">
-            <div className="flex justify-between items-center">
+            <div className="flex justify-between items-center bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
                 <div>
-                    <h2 className="text-2xl font-bold text-slate-800">Dashboard Overview</h2>
-                    <p className="text-slate-500">Welcome back, {userName} ({role})</p>
+                    <h2 className="text-2xl font-bold text-slate-800">
+                        {userName} <span className="text-slate-400 font-normal">({userRole})</span>
+                    </h2>
+                    <p className="text-slate-500 text-sm">Welcome to MediFlow AI Command Center</p>
                 </div>
-                <Button onClick={scanPatientTag}>
-                    <Scan className="w-4 h-4 mr-2" /> Scan Patient (NFC)
+                <Button onClick={scanPatientTag} className="bg-slate-900 hover:bg-slate-800">
+                    <Scan className="w-4 h-4 mr-2" /> Scan NFC Tag
                 </Button>
             </div>
 
-            {/* Role Specific Content */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-full">
-
-                {/* DOCTOR VIEW: Compliance & Prescriptions */}
-                {role === 'doctor' && (
-                    <>
-                        <div className="lg:col-span-2">
-                            <DoctorPrescription />
-                        </div>
-                        <div>
-                            {/* Doctor also sees Compliance to allow discharge */}
-                            <ComplianceAuditor selectedPatient={{ name: "Select Patient from List", status: "N/A", missing_docs: 0 }} />
-                        </div>
-                    </>
-                )}
-
-                {/* NURSE VIEW: Smart Ranking & Vitals Focus */}
-                {role === 'nurse' && (
-                    <>
-                        <div className="lg:col-span-2">
-                            <SmartRanker />
-                        </div>
-                        <div>
-                            <ComplianceAuditor selectedPatient={{ name: "Dr. Approval Needed", status: "Check Docs", missing_docs: 0 }} />
-                        </div>
-                    </>
-                )}
-
-                {/* PHARMACIST VIEW: Billing Focus */}
-                {role === 'pharmacist' && (
-                    <div className="lg:col-span-3 bg-emerald-50 p-8 rounded-xl border border-emerald-100 text-center">
-                        <h2 className="text-2xl font-bold text-emerald-800">Pharmacy Queue</h2>
-                        <p className="text-emerald-600">Waiting for automatic bills generated by Doctors...</p>
-                        {/* Reuse Smart Ranker or specific list here if needed */}
-                    </div>
-                )}
-
-            </div>
-
-            {/* Common Stats Grid (Below) */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
-                <div className="bg-white p-6 rounded-xl shadow-sm border">
-                    <h3 className="text-gray-500 text-sm font-medium">Total Patients</h3>
-                    <p className="text-3xl font-bold mt-2">{stats.patients}</p>
-                </div>
-                <div className="bg-white p-6 rounded-xl shadow-sm border">
-                    <h3 className="text-gray-500 text-sm font-medium">Pending Tasks</h3>
-                    <p className="text-3xl font-bold mt-2 text-orange-600">8</p>
-                </div>
-                {/* Bed Status replaced by Intelligent Widget */}
-                <BedStatusWidget />
-            </div>
-
-            {/* Logic Modules Grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 h-96">
-                <SmartRanker />
-                <ComplianceAuditor selectedPatient={stats.patients > 0 ? { name: "Jane Smith", status: "Critical", missing_docs: 2 } : null} />
-            </div>
+            {renderDashboard()}
         </div>
     );
 }

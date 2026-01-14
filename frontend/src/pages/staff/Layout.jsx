@@ -1,42 +1,138 @@
-import { Outlet, Link } from "react-router-dom";
-import { LayoutDashboard, LogOut, FileText, Map, Users } from "lucide-react";
+import { Outlet, Link, useLocation } from "react-router-dom";
+import { LayoutDashboard, LogOut, FileText, Map, Users, Calendar, MessageSquare, Bell } from "lucide-react";
 import { cn } from "../../lib/utils";
+import { useState, useEffect } from "react";
 
 export default function StaffLayout() {
+    const location = useLocation();
+    const [currentTime, setCurrentTime] = useState(new Date());
+
+    useEffect(() => {
+        const timer = setInterval(() => setCurrentTime(new Date()), 60000);
+        return () => clearInterval(timer);
+    }, []);
+
+    const isLoginPage = location.pathname === "/staff/login";
+
+    // If on login page, render only the content (Login Form) without sidebar/header
+    if (isLoginPage) {
+        return (
+            <div className="min-h-screen bg-slate-50 font-nunito"> {/* Changed font to nunito to match original */}
+                <Outlet />
+            </div>
+        );
+    }
+
+    const navItems = [
+        { icon: LayoutDashboard, label: "Dashboard", path: "/staff/dashboard" }, // Changed icon to component reference
+        { icon: Users, label: "Patients", path: "/staff/patients" }, // Changed icon to component reference
+        { icon: Map, label: "Hospital Map", path: "/staff/admin-dashboard" }, // Changed icon to component reference
+        { icon: Calendar, label: "Schedule", path: "/staff/schedule" }, // Changed icon to component reference
+        { icon: MessageSquare, label: "Messages", path: "/staff/messages", badge: 3 }, // Changed icon to component reference
+    ];
+
     return (
-        <div className="flex h-screen bg-gray-100">
+        <div className="flex h-screen bg-slate-50 font-nunito text-slate-900 selection:bg-blue-100 overflow-hidden"> {/* Added overflow-hidden and selection styles */}
             {/* Sidebar */}
-            <aside className="w-64 bg-white border-r shadow-sm hidden md:flex flex-col">
-                <div className="p-6">
-                    <h1 className="text-2xl font-bold text-blue-600">MediFlow Staff</h1>
+            <aside className="w-72 bg-white m-4 rounded-[2rem] shadow-xl border border-slate-100 hidden md:flex flex-col relative overflow-hidden animate-in slide-in-from-left duration-500"> {/* Added animation */}
+                {/* Decor */}
+                <div className="absolute top-0 right-0 w-40 h-40 bg-blue-500/5 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none"></div>
+
+                {/* Header & Profile */}
+                <div className="p-8 pb-4">
+                    <div className="flex items-center gap-3 mb-8"> {/* Changed gap to 3 */}
+                        <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white font-black text-xl shadow-lg shadow-blue-200"> {/* Changed font to black */}
+                            M
+                        </div>
+                        <h1 className="text-2xl font-black text-slate-800 tracking-tight">MediFlow</h1>
+                    </div>
+
+                    {/* Mini Profile Card */}
+                    <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100 flex items-center gap-4 mb-2"> {/* Changed mb to 2 */}
+                        <div className="relative"> {/* Added relative wrapper */}
+                            <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center text-xl shadow-sm border border-slate-100"> {/* Changed size and added border */}
+                                👨‍⚕️
+                            </div>
+                            <div className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 border-2 border-white rounded-full"></div> {/* Added online indicator */}
+                        </div>
+                        <div>
+                            <p className="font-bold text-sm text-slate-800">Dr. House</p> {/* Changed text size */}
+                            <p className="text-xs text-emerald-600 font-bold flex items-center gap-1">
+                                ● Online {/* Changed online text */}
+                            </p>
+                        </div>
+                    </div>
                 </div>
-                <nav className="flex-1 px-4 space-y-2">
-                    <Link to="/staff/dashboard" className={cn("flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg bg-blue-50 text-blue-700")}>
-                        <LayoutDashboard className="w-5 h-5" />
-                        Dashboard
-                    </Link>
-                    <Link to="#" className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-600 hover:bg-gray-50 rounded-lg">
-                        <Users className="w-5 h-5" />
-                        Patients
-                    </Link>
-                    <Link to="/staff/admin-dashboard" className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-600 hover:bg-gray-50 rounded-lg">
-                        <Map className="w-5 h-5" />
-                        Map
-                    </Link>
+
+                {/* Navigation */}
+                <nav className="flex-1 px-6 space-y-2 overflow-y-auto scrollbar-thin scrollbar-thumb-slate-100">
+                    <p className="px-4 text-xs font-bold text-slate-400 uppercase tracking-widest mb-2 mt-2">Menu</p>
+                    {navItems.map((item) => { // Removed idx
+                        const Icon = item.icon; // Destructure icon component
+                        const isActive = location.pathname === item.path;
+                        return (
+                            <Link
+                                key={item.path} // Changed key to item.path
+                                to={item.path}
+                                className={cn(
+                                    "flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group relative overflow-hidden", // Updated styling
+                                    isActive
+                                        ? "bg-slate-900 text-white shadow-lg shadow-slate-200" // Updated active styling
+                                        : "text-slate-500 hover:bg-slate-50 hover:text-slate-900 font-medium" // Updated inactive styling
+                                )}
+                            >
+                                <Icon className={cn("w-5 h-5", isActive ? "text-blue-400" : "text-slate-400 group-hover:text-slate-600")} /> {/* Render Icon component */}
+                                <span className={cn("font-bold text-sm z-10", isActive ? "text-white" : "")}>{item.label}</span> {/* Updated text styling */}
+                                {item.badge && (
+                                    <span className="ml-auto bg-rose-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-md shadow-sm animate-pulse"> {/* Updated badge styling */}
+                                        {item.badge}
+                                    </span>
+                                )}
+                            </Link>
+                        );
+                    })}
                 </nav>
-                <div className="p-4 border-t">
-                    <button className="flex items-center gap-2 text-sm font-medium text-red-600 hover:bg-red-50 p-2 rounded w-full">
-                        <LogOut className="w-4 h-4" />
-                        Logout
+
+                {/* Bottom Widget: Mini Calendar */}
+                <div className="p-6 pt-2">
+                    <div className="bg-slate-900 rounded-2xl p-5 text-white relative overflow-hidden shadow-xl">
+                        <div className="absolute top-0 right-0 w-24 h-24 bg-rose-500/20 rounded-full blur-2xl -mr-6 -mt-6"></div>
+
+                        <div className="relative z-10 flex justify-between items-end mb-4">
+                            <div>
+                                <p className="text-slate-400 text-xs font-bold uppercase tracking-wider">{currentTime.toLocaleString('default', { month: 'long' })}</p>
+                                <p className="text-3xl font-black">{currentTime.getDate()}</p>
+                            </div>
+                            <Calendar className="w-8 h-8 text-rose-500 opacity-80" />
+                        </div>
+
+                        <div className="relative z-10 space-y-2">
+                            <div className="flex bg-white/10 p-2 rounded-lg items-center gap-3 backdrop-blur-md">
+                                <span className="w-1 h-8 bg-emerald-400 rounded-full"></span>
+                                <div>
+                                    <p className="text-xs font-bold text-white">Shift Ends</p>
+                                    <p className="text-[10px] text-slate-400 font-mono">18:00 PM</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Seamless Logout */}
+                <div className="p-6 pt-0">
+                    <button
+                        onClick={() => window.location.href = '/staff/login'}
+                        className="flex items-center justify-center gap-2 text-sm font-bold text-rose-500 hover:bg-rose-50 hover:text-rose-600 p-4 rounded-xl w-full transition-colors border border-dashed border-rose-200 group"
+                    >
+                        <LogOut className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+                        Sign Out
                     </button>
                 </div>
             </aside>
 
             {/* Main Content */}
-            <main className="flex-1 overflow-auto">
-                <div className="p-8">
-                    <Outlet />
-                </div>
+            <main className="flex-1 overflow-auto p-4 md:p-8">
+                <Outlet />
             </main>
         </div>
     );

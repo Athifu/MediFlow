@@ -3,10 +3,14 @@ import StaffLayout from "./pages/staff/Layout";
 import StaffLogin from "./pages/staff/Login";
 import StaffDashboard from "./pages/staff/Dashboard";
 import AdminDashboard from "./pages/staff/AdminDashboard";
+import StaffSchedule from "./pages/staff/Schedule";
+import StaffMessages from "./pages/staff/Messages";
+import StaffPatients from "./pages/staff/Patients";
 import StaffPatientDetail from "./pages/staff/PatientDetail";
 import PatientLayout from "./pages/patient/Layout";
 import NfcLogin from "./pages/patient/NfcLogin";
 import PatientDashboard from "./pages/patient/Dashboard";
+import FamilyTracker from "./components/patient/FamilyTracker";
 
 export default function App() {
   return (
@@ -19,6 +23,9 @@ export default function App() {
           <Route path="login" element={<StaffLogin />} />
           <Route path="dashboard" element={<StaffDashboard />} />
           <Route path="admin-dashboard" element={<AdminDashboard />} />
+          <Route path="schedule" element={<StaffSchedule />} />
+          <Route path="messages" element={<StaffMessages />} />
+          <Route path="patients" element={<StaffPatients />} />
           <Route path="patient/:id" element={<StaffPatientDetail />} />
           {/* Redirect root of /staff to login or dashboard */}
           <Route index element={<Navigate to="/staff/login" replace />} />
@@ -30,6 +37,9 @@ export default function App() {
           <Route path="dashboard" element={<PatientDashboard />} />
           <Route index element={<Navigate to="/patient/login" replace />} />
         </Route>
+
+        {/* Public Routes */}
+        <Route path="/track/:id" element={<FamilyTracker />} />
       </Routes>
     </BrowserRouter>
   )

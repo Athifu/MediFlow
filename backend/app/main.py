@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.routers import auth, patients, tasks, alerts, billing
+from app.routers import auth, patients, tasks, alerts, billing, staff
 
 app = FastAPI(title="MediFlow AI API")
 
@@ -23,6 +23,7 @@ app.include_router(patients.router, prefix="/patients", tags=["Patients"])
 app.include_router(tasks.router, prefix="/tasks", tags=["Tasks"])
 app.include_router(alerts.router, prefix="/alerts", tags=["Alerts"])
 app.include_router(billing.router, prefix="/api", tags=["Billing"])
+app.include_router(staff.router, prefix="/api/staff", tags=["Staff"])
 
 @app.get("/")
 def read_root():
