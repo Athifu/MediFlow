@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { api } from "../../lib/api";
 import SmartRanker from "../logic/SmartRanker";
-import { Bell, Check, Activity, ClipboardList, BedDouble, AlertTriangle, Stethoscope, MessageSquare, Clock, Syringe } from "lucide-react";
+import { Bell, Check, Activity, ClipboardList, BedDouble, AlertTriangle, Stethoscope, MessageSquare, Clock, Syringe, Mic, Square } from "lucide-react";
 
 export default function NurseView() {
     // Feature 1: Live Emergency Feed (Mocked Enhanced)
@@ -16,6 +16,23 @@ export default function NurseView() {
         { id: 2, text: "Wound Dressing - P-093", status: "progress" },
         { id: 3, text: "Vitals Check - Wing A", status: "done" },
     ]);
+
+    // Feature 4: Voice Recording State
+    const [isRecording, setIsRecording] = useState(false);
+    const [audioUrl, setAudioUrl] = useState(null);
+
+    const toggleRecording = () => {
+        if (!isRecording) {
+            setIsRecording(true);
+            // Mock recording duration
+            setTimeout(() => {
+                // In real app, we'd stop MediaRecorder here
+            }, 60000);
+        } else {
+            setIsRecording(false);
+            setAudioUrl("mock_audio_blob_url"); // Simulate saved audio
+        }
+    };
 
     const handleTaskMove = (id, newStatus) => {
         setTasks(tasks.map(t => t.id === id ? { ...t, status: newStatus } : t));
@@ -114,13 +131,35 @@ export default function NurseView() {
                         </div>
                     </div>
 
-                    {/* Feature 4: Shift Handoff Notes */}
+                    {/* Feature 4: Shift Handoff Notes & Voice */}
                     <div className="grid grid-cols-2 gap-6">
-                        <div className="bg-yellow-50 p-6 rounded-[2rem] border border-yellow-100 shadow-sm relative">
-                            <h3 className="text-lg font-bold text-yellow-800 mb-3 flex items-center gap-2">
-                                <MessageSquare className="w-5 h-5" /> Shift Notes
+                        <div className="bg-yellow-50 p-6 rounded-[2rem] border border-yellow-100 shadow-sm relative flex flex-col">
+                            <h3 className="text-lg font-bold text-yellow-800 mb-3 flex items-center justify-between">
+                                <span className="flex items-center gap-2"><MessageSquare className="w-5 h-5" /> Shift Notes</span>
+
+                                {/* Advanced Feature: Voice Note */}
+                                <button
+                                    onClick={toggleRecording}
+                                    className={`w-8 h-8 rounded-full flex items-center justify-center transition-all ${isRecording ? 'bg-red-500 text-white animate-pulse' : 'bg-yellow-200 text-yellow-800 hover:bg-yellow-300'}`}
+                                >
+                                    {isRecording ? <Square className="w-3 h-3 fill-current" /> : <Mic className="w-4 h-4" />}
+                                </button>
                             </h3>
-                            <textarea className="w-full bg-yellow-100/50 rounded-xl p-3 text-yellow-900 font-medium placeholder-yellow-700/50 outline-none resize-none h-32 text-sm" placeholder="Type handoff notes here... e.g. Patient in 204 needs extra fluids."></textarea>
+
+                            {/* Audio Player Fallback */}
+                            {audioUrl && (
+                                <div className="bg-white/50 p-2 rounded-lg mb-2 flex items-center gap-2">
+                                    <div className="w-6 h-6 bg-yellow-600 rounded-full flex items-center justify-center text-white cursor-pointer hover:scale-105 active:scale-95">
+                                        <div className="w-0 h-0 border-t-[4px] border-t-transparent border-l-[6px] border-l-white border-b-[4px] border-b-transparent ml-0.5"></div>
+                                    </div>
+                                    <div className="flex-1 h-1 bg-yellow-200 rounded-full overflow-hidden">
+                                        <div className="w-1/3 h-full bg-yellow-600"></div>
+                                    </div>
+                                    <span className="text-[10px] font-bold text-yellow-800">0:14</span>
+                                </div>
+                            )}
+
+                            <textarea className="w-full bg-yellow-100/50 rounded-xl p-3 text-yellow-900 font-medium placeholder-yellow-700/50 outline-none resize-none h-32 text-sm flex-1" placeholder="Type handoff notes... or use the Mic to record a voice summary."></textarea>
                         </div>
 
                         {/* Feature 6: Schedule / Next Shift */}

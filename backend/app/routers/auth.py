@@ -9,19 +9,19 @@ FAKE_USERS_DB = {
     "doctor": {
         "username": "doctor",
         "full_name": "Dr. House",
-        "password": "pass", 
+        "password": "doctor", 
         "role": "doctor",
     },
     "nurse": {
         "username": "nurse",
         "full_name": "Nurse Joy",
-        "password": "123",
+        "password": "nurse",
         "role": "nurse",
     },
     "pharma": {
         "username": "pharma",
         "full_name": "Pepper Tablets",
-        "password": "mints",
+        "password": "pharma",
         "role": "pharmacist",
     },
     "admin": {

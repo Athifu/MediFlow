@@ -2,6 +2,7 @@ import { Outlet, Link, useLocation } from "react-router-dom";
 import { LayoutDashboard, LogOut, FileText, Map, Users, Calendar, MessageSquare, Bell } from "lucide-react";
 import { cn } from "../../lib/utils";
 import { useState, useEffect } from "react";
+import SpotlightSearch from "../../components/common/SpotlightSearch";
 
 export default function StaffLayout() {
     const location = useLocation();
@@ -17,48 +18,50 @@ export default function StaffLayout() {
     // If on login page, render only the content (Login Form) without sidebar/header
     if (isLoginPage) {
         return (
-            <div className="min-h-screen bg-slate-50 font-nunito"> {/* Changed font to nunito to match original */}
+            <div className="min-h-screen bg-slate-50 font-nunito">
                 <Outlet />
             </div>
         );
     }
 
     const navItems = [
-        { icon: LayoutDashboard, label: "Dashboard", path: "/staff/dashboard" }, // Changed icon to component reference
-        { icon: Users, label: "Patients", path: "/staff/patients" }, // Changed icon to component reference
-        { icon: Map, label: "Hospital Map", path: "/staff/admin-dashboard" }, // Changed icon to component reference
-        { icon: Calendar, label: "Schedule", path: "/staff/schedule" }, // Changed icon to component reference
-        { icon: MessageSquare, label: "Messages", path: "/staff/messages", badge: 3 }, // Changed icon to component reference
+        { icon: LayoutDashboard, label: "Dashboard", path: "/staff/dashboard" },
+        { icon: Users, label: "Patients", path: "/staff/patients" },
+        { icon: Map, label: "Hospital Map", path: "/staff/admin-dashboard" },
+        { icon: Calendar, label: "Schedule", path: "/staff/schedule" },
+        { icon: MessageSquare, label: "Messages", path: "/staff/messages", badge: 3 },
     ];
 
     return (
-        <div className="flex h-screen bg-slate-50 font-nunito text-slate-900 selection:bg-blue-100 overflow-hidden"> {/* Added overflow-hidden and selection styles */}
+        <div className="flex h-screen bg-slate-50 font-nunito text-slate-900 selection:bg-blue-100 overflow-hidden">
+            <SpotlightSearch />
+
             {/* Sidebar */}
-            <aside className="w-72 bg-white m-4 rounded-[2rem] shadow-xl border border-slate-100 hidden md:flex flex-col relative overflow-hidden animate-in slide-in-from-left duration-500"> {/* Added animation */}
+            <aside className="w-72 bg-white m-4 rounded-[2rem] shadow-xl border border-slate-100 hidden md:flex flex-col relative overflow-hidden animate-in slide-in-from-left duration-500">
                 {/* Decor */}
                 <div className="absolute top-0 right-0 w-40 h-40 bg-blue-500/5 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none"></div>
 
                 {/* Header & Profile */}
                 <div className="p-8 pb-4">
-                    <div className="flex items-center gap-3 mb-8"> {/* Changed gap to 3 */}
-                        <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white font-black text-xl shadow-lg shadow-blue-200"> {/* Changed font to black */}
+                    <div className="flex items-center gap-3 mb-8">
+                        <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white font-black text-xl shadow-lg shadow-blue-200">
                             M
                         </div>
                         <h1 className="text-2xl font-black text-slate-800 tracking-tight">MediFlow</h1>
                     </div>
 
                     {/* Mini Profile Card */}
-                    <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100 flex items-center gap-4 mb-2"> {/* Changed mb to 2 */}
-                        <div className="relative"> {/* Added relative wrapper */}
-                            <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center text-xl shadow-sm border border-slate-100"> {/* Changed size and added border */}
+                    <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100 flex items-center gap-4 mb-2">
+                        <div className="relative">
+                            <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center text-xl shadow-sm border border-slate-100">
                                 👨‍⚕️
                             </div>
-                            <div className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 border-2 border-white rounded-full"></div> {/* Added online indicator */}
+                            <div className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 border-2 border-white rounded-full"></div>
                         </div>
                         <div>
-                            <p className="font-bold text-sm text-slate-800">Dr. House</p> {/* Changed text size */}
+                            <p className="font-bold text-sm text-slate-800">Dr. House</p>
                             <p className="text-xs text-emerald-600 font-bold flex items-center gap-1">
-                                ● Online {/* Changed online text */}
+                                ● Online
                             </p>
                         </div>
                     </div>
@@ -67,24 +70,24 @@ export default function StaffLayout() {
                 {/* Navigation */}
                 <nav className="flex-1 px-6 space-y-2 overflow-y-auto scrollbar-thin scrollbar-thumb-slate-100">
                     <p className="px-4 text-xs font-bold text-slate-400 uppercase tracking-widest mb-2 mt-2">Menu</p>
-                    {navItems.map((item) => { // Removed idx
-                        const Icon = item.icon; // Destructure icon component
+                    {navItems.map((item) => {
+                        const Icon = item.icon;
                         const isActive = location.pathname === item.path;
                         return (
                             <Link
-                                key={item.path} // Changed key to item.path
+                                key={item.path}
                                 to={item.path}
                                 className={cn(
-                                    "flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group relative overflow-hidden", // Updated styling
+                                    "flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group relative overflow-hidden",
                                     isActive
-                                        ? "bg-slate-900 text-white shadow-lg shadow-slate-200" // Updated active styling
-                                        : "text-slate-500 hover:bg-slate-50 hover:text-slate-900 font-medium" // Updated inactive styling
+                                        ? "bg-slate-900 text-white shadow-lg shadow-slate-200"
+                                        : "text-slate-500 hover:bg-slate-50 hover:text-slate-900 font-medium"
                                 )}
                             >
-                                <Icon className={cn("w-5 h-5", isActive ? "text-blue-400" : "text-slate-400 group-hover:text-slate-600")} /> {/* Render Icon component */}
-                                <span className={cn("font-bold text-sm z-10", isActive ? "text-white" : "")}>{item.label}</span> {/* Updated text styling */}
+                                <Icon className={cn("w-5 h-5", isActive ? "text-blue-400" : "text-slate-400 group-hover:text-slate-600")} />
+                                <span className={cn("font-bold text-sm z-10", isActive ? "text-white" : "")}>{item.label}</span>
                                 {item.badge && (
-                                    <span className="ml-auto bg-rose-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-md shadow-sm animate-pulse"> {/* Updated badge styling */}
+                                    <span className="ml-auto bg-rose-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-md shadow-sm animate-pulse">
                                         {item.badge}
                                     </span>
                                 )}

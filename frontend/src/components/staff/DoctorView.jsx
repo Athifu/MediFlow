@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Calendar, User, Activity, FileText, FlaskConical, Brain, CheckCircle, ClipboardList, Stethoscope, ChevronRight } from "lucide-react";
+import { Calendar, User, Activity, FileText, FlaskConical, Brain, CheckCircle, ClipboardList, Stethoscope, ChevronRight, Sparkles, Mic, Play, Pause } from "lucide-react";
 import DoctorPrescription from "../logic/DoctorPrescription";
 
 export default function DoctorView() {
@@ -11,6 +11,18 @@ export default function DoctorView() {
     ]);
 
     const [selectedPatient, setSelectedPatient] = useState(patients[0]);
+    const [clinicalNote, setClinicalNote] = useState("");
+    const [isGenerating, setIsGenerating] = useState(false);
+
+    const generateIsoapNote = () => {
+        setIsGenerating(true);
+        // Simulate AI Latency
+        setTimeout(() => {
+            const soap = `SUBJECTIVE:\nPatient reports feeling ${selectedPatient.status === 'Critical' ? 'severe pain' : 'mild discomfort'}. \n\nOBJECTIVE:\nVitlas stable. BP ${selectedPatient.status === 'Critical' ? '145/90' : '120/80'}. \n\nASSESSMENT:\n${selectedPatient.condition}. Progressing as expected.\n\nPLAN:\nContinue current medication. Follow up in 24 hours.`;
+            setClinicalNote(soap);
+            setIsGenerating(false);
+        }, 1500);
+    };
 
     return (
         <div className="flex bg-slate-50 h-[calc(100vh-140px)] gap-6 rounded-[2rem] overflow-hidden animate-in fade-in duration-500">
@@ -70,7 +82,10 @@ export default function DoctorView() {
                     </div>
 
                     {/* 6. Feature: AI Consult Button */}
-                    <button className="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-3 rounded-xl font-bold shadow-lg shadow-indigo-200 flex items-center gap-2 active:scale-95 transition-transform">
+                    <button
+                        onClick={() => alert("AI Consult: 'Consider reducing Ibuprofen dosage due to mild renal flags.'")}
+                        className="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-3 rounded-xl font-bold shadow-lg shadow-indigo-200 flex items-center gap-2 active:scale-95 transition-transform"
+                    >
                         <Brain className="w-5 h-5 animate-pulse" /> Dr. AI Consult
                     </button>
                 </div>
@@ -92,6 +107,29 @@ export default function DoctorView() {
                     <div className="grid grid-cols-2 gap-8">
                         {/* 3. Feature: Clinical Notes & Prescription (Existing but polished) */}
                         <div className="space-y-6">
+
+                            {/* ADVANCED FEATURE: AI SCRIBE */}
+                            <div className="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100">
+                                <div className="flex justify-between items-center mb-4">
+                                    <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
+                                        <FileText className="w-5 h-5 text-slate-400" /> Clinical Notes
+                                    </h3>
+                                    <button
+                                        onClick={generateIsoapNote}
+                                        disabled={isGenerating}
+                                        className="bg-purple-100 hover:bg-purple-200 text-purple-700 px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-2 transition-colors disabled:opacity-50"
+                                    >
+                                        <Sparkles className="w-3 h-3" /> {isGenerating ? 'AI Writing...' : 'Auto-Generate SOAP'}
+                                    </button>
+                                </div>
+                                <textarea
+                                    className="w-full h-40 bg-slate-50 border border-slate-100 rounded-xl p-4 text-sm font-medium text-slate-700 focus:outline-none focus:border-blue-300 transition-colors resize-none"
+                                    placeholder="Type patient observation here..."
+                                    value={clinicalNote}
+                                    onChange={(e) => setClinicalNote(e.target.value)}
+                                ></textarea>
+                            </div>
+
                             <DoctorPrescription patientName={selectedPatient.name} />
                         </div>
 
